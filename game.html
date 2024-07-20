@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We Are Not Really Strangers Game</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes button-click {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+
+        body {
+            background-color: #333;
+            color: white;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        .card-container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            padding: 0 15px;
+            z-index: 1;
+        }
+        .card {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background: url('2b9723a6-b4dc-4d54-b958-f042b287b62e.jpg') no-repeat center center;
+            background-size: contain;
+            color: white;
+            position: relative;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-content {
+            position: relative;
+            z-index: 1;
+            font-weight: bold;
+            font-size: 32px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        .counters {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .counter {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            color: black;
+            font-size: 20px;
+        }
+        .counter span {
+            display: block;
+        }
+        .draw-button {
+            margin-bottom: 20px;
+            animation: button-click 0.3s ease;
+        }
+        .counter-drawn {
+            background-color: #ffcc00; /* Màu vàng */
+        }
+        .counter-left {
+            background-color: #00ccff; /* Màu xanh dương nhạt */
+        }
+        .star {
+            position: absolute;
+            background-color: white;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            opacity: 0.8;
+            animation: blink 1.5s infinite;
+        }
+        .star::before, .star::after {
+            content: '';
+            position: absolute;
+            background-color: white;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            animation: blink 1.5s infinite;
+        }
+        .star::before {
+            width: 100%;
+            height: 2px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+        .star::after {
+            height: 100%;
+            width: 2px;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            color: black;
+        }
+        @media (max-width: 600px) {
+            .card-container {
+                padding: 10px;
+            }
+            .counter span {
+                font-size: 18px;
+            }
+            .card-content {
+                font-size: 24px;
+            }
+            .counter {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <button id="draw-card" class="btn btn-primary draw-button">Draw Card</button>
+        <div class="counters">
+            <div class="counter counter-drawn">
+                <span id="cards-drawn">0</span>
+                <span>Cards Drawn</span>
+            </div>
+            <div class="counter counter-left">
+                <span id="cards-left">10</span>
+                <span>Cards Left</span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-content">
+                <div id="question" class="question">Press "Draw Card" to start!</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Popup modal -->
+    <div id="endGameModal" class="modal">
+        <div class="modal-content">
+            <p>The game has ended!</p>
+            <button id="play-again" class="btn btn-primary">Play Again</button>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questions = [
+                "What’s the best advice you’ve ever been given?",
+                "What’s a favorite memory you have from childhood?",
+                "What’s something you’re grateful for today?",
+                "What’s the most beautiful place you’ve ever seen?",
+                "What’s something you’ve always wanted to try?",
+                "What’s one of the kindest things someone has done for you?",
+                "What’s your biggest goal for this year?",
+                "What’s something you’ve accomplished that you’re proud of?",
+                "What’s a talent you have that not many people know about?",
+                "What’s your favorite way to relax after a long day?"
+            ];
+
+            let drawnCards = [];
+            let cardsDrawn = 0;
+
+            const cardsDrawnElement = document.getElementById('cards-drawn');
+            const cardsLeftElement = document.getElementById('cards-left');
+            const questionElement = document.getElementById('question');
+            const drawCardButton = document.getElementById('draw-card');
+            const endGameModal = document.getElementById('endGameModal');
+            const playAgainButton = document.getElementById('play-again');
+
+            drawCardButton.addEventListener('click', function() {
+                drawCardButton.style.animation = 'button-click 0.3s ease';
+                setTimeout(() => drawCardButton.style.animation = '', 300);
+
+                if (drawnCards.length < questions.length) {
+                    let randomIndex;
+                    do {
+                        randomIndex = Math.floor(Math.random() * questions.length);
+                    } while (drawnCards.includes(randomIndex));
+
+                    drawnCards.push(randomIndex);
+                    cardsDrawn++;
+
+                    questionElement.textContent = questions[randomIndex];
+                    cardsDrawnElement.textContent = cardsDrawn;
+                    cardsLeftElement.textContent = questions.length - cardsDrawn;
+                } else {
+                    questionElement.textContent = "All questions have been drawn!";
+                    endGameModal.style.display = 'block';
+                }
+            });
+
+            playAgainButton.addEventListener('click', function() {
+                drawnCards = [];
+                cardsDrawn = 0;
+                cardsDrawnElement.textContent = cardsDrawn;
+                cardsLeftElement.textContent = questions.length;
+                questionElement.textContent = 'Press "Draw Card" to start!';
+                endGameModal.style.display = 'none';
+            });
+
+            // Tạo các ngôi sao 4 cánh
+            const numStars = 30;
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                const size = Math.random() * 3 + 2; // Kích thước ngẫu nhiên từ 2px đến 5px
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.top = `${Math.random() * 100}vh`;
+                star.style.left = `${Math.random() * 100}vw`;
+                document.body.appendChild(star);
+            }
+        });
+    </script>
+</body>
+</html>
