@@ -40,8 +40,8 @@
             border: 1px solid #ddd;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            background: url('2b9723a6-b4dc-4d54-b958-f042b287b62e.jpg') no-repeat center center;
-            background-size: contain;
+            background-size: cover;
+            background-position: center;
             color: white;
             position: relative;
             height: 500px;
@@ -56,34 +56,9 @@
             font-size: 32px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
         }
-        .counters {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .counter {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            color: black;
-            font-size: 20px;
-        }
-        .counter span {
-            display: block;
-        }
         .draw-button {
             margin-bottom: 20px;
             animation: button-click 0.3s ease;
-        }
-        .counter-drawn {
-            background-color: #ffcc00; /* Màu vàng */
-        }
-        .counter-left {
-            background-color: #00ccff; /* Màu xanh dương nhạt */
         }
         .star {
             position: absolute;
@@ -138,35 +113,24 @@
             .card-container {
                 padding: 10px;
             }
-            .counter span {
-                font-size: 18px;
-            }
             .card-content {
                 font-size: 24px;
-            }
-            .counter {
-                width: 80px;
-                height: 80px;
             }
         }
     </style>
 </head>
 <body>
     <div class="card-container">
-        <button id="draw-card" class="btn btn-primary draw-button">Draw Card</button>
-        <div class="counters">
-            <div class="counter counter-drawn">
-                <span id="cards-drawn">0</span>
-                <span>Cards Drawn</span>
-            </div>
-            <div class="counter counter-left">
-                <span id="cards-left">10</span>
-                <span>Cards Left</span>
-            </div>
+        <div class="button-group">
+            <button id="life-button" class="btn btn-primary draw-button">Life</button>
+            <button id="random-button" class="btn btn-primary draw-button">Random</button>
+            <button id="deep-button" class="btn btn-primary draw-button">Deep</button>
+            <button id="experience-button" class="btn btn-primary draw-button">Experience</button>
+            <button id="if-you-could-button" class="btn btn-primary draw-button">If You Could</button>
         </div>
-        <div class="card">
+        <div class="card" id="card">
             <div class="card-content">
-                <div id="question" class="question">Press "Draw Card" to start!</div>
+                <div id="question" class="question">Press a button to start!</div>
             </div>
         </div>
     </div>
@@ -183,56 +147,180 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const questions = [
-                "What’s the best advice you’ve ever been given?",
-                "What’s a favorite memory you have from childhood?",
-                "What’s something you’re grateful for today?",
-                "What’s the most beautiful place you’ve ever seen?",
-                "What’s something you’ve always wanted to try?",
-                "What’s one of the kindest things someone has done for you?",
-                "What’s your biggest goal for this year?",
-                "What’s something you’ve accomplished that you’re proud of?",
-                "What’s a talent you have that not many people know about?",
-                "What’s your favorite way to relax after a long day?"
-            ];
+            const categories = {
+                life: {
+                    questions: [
+                        "What's the best piece of advice you've ever received?",
+                        "What's one thing you're most proud of?",
+                        "If you could live anywhere in the world, where would it be?",
+                        "What's a goal you're currently working towards?",
+                        "What's your favorite way to spend a day off?",
+                        "What's your favorite childhood memory?",
+                        "What hobby have you always wanted to pick up?",
+                        "What's the most meaningful gift you've ever received?",
+                        "How do you like to start your day?",
+                        "What's your favorite family tradition?",
+                        "What's one thing you can't live without?",
+                        "What's the most important lesson you've learned so far?",
+                        "What motivates you to get up in the morning?",
+                        "What's your favorite book or movie and why?",
+                        "What's your dream job?",
+                        "Who's had the biggest impact on your life?",
+                        "What's a skill you wish you had?",
+                        "What's your favorite way to relax?",
+                        "What's one thing you wish you had more time for?",
+                        "What's the best trip you've ever taken?"
+                    ],
+                    image: 'Life.jpg'
+                },
+                random: {
+                    questions: [
+                        "If you could have any superpower, what would it be?",
+                        "What's your favorite food?",
+                        "Do you prefer cats or dogs?",
+                        "What's your favorite season and why?",
+                        "If you could instantly become an expert in something, what would it be?",
+                        "What's your go-to karaoke song?",
+                        "If you could time travel, where and when would you go?",
+                        "What's the last TV show you binge-watched?",
+                        "If you could meet any historical figure, who would it be?",
+                        "What's your favorite holiday?",
+                        "If you could only eat one meal for the rest of your life, what would it be?",
+                        "What's your favorite type of music?",
+                        "If you could switch lives with someone for a day, who would it be?",
+                        "What's your favorite way to spend a weekend?",
+                        "If you won the lottery, what's the first thing you would buy?",
+                        "What's your favorite sport to watch or play?",
+                        "If you could have dinner with anyone, dead or alive, who would it be?",
+                        "What's your favorite place to visit in your city?",
+                        "What's the most unusual thing you've ever eaten?",
+                        "If you could have any animal as a pet, what would it be?"
+                    ],
+                    image: 'Random.jpg'
+                },
+                deep: {
+                    questions: [
+                        "What's your biggest fear?",
+                        "What do you think is the meaning of life?",
+                        "What's one thing you would change about the world?",
+                        "What do you value most in a friendship?",
+                        "What's a cause you're passionate about?",
+                        "How do you handle stress?",
+                        "What's your biggest regret?",
+                        "What do you think happens after we die?",
+                        "What's the most important quality in a partner?",
+                        "What's one thing you wish people knew about you?",
+                        "What's your definition of success?",
+                        "How do you define happiness?",
+                        "What's a mistake you've learned from?",
+                        "What's something you're grateful for?",
+                        "What do you think makes a good leader?",
+                        "What's the hardest decision you've ever made?",
+                        "How do you stay motivated during tough times?",
+                        "What's your biggest dream?",
+                        "What's one thing you hope to achieve in your lifetime?",
+                        "How do you find meaning in your work?"
+                    ],
+                    image: 'Deep.jpg'
+                },
+                experience: {
+                    questions: [
+                        "What's the most adventurous thing you've ever done?",
+                        "What's your favorite travel destination and why?",
+                        "What's the best concert you've ever been to?",
+                        "What's the scariest thing you've ever done?",
+                        "What's your favorite memory from school?",
+                        "Have you ever met a celebrity? Who?",
+                        "What's the best meal you've ever had?",
+                        "What's the most unusual job you've ever had?",
+                        "What's a memorable birthday you've had?",
+                        "Have you ever been on a road trip? Where to?",
+                        "What's the most interesting class you've ever taken?",
+                        "What's a hobby you've enjoyed for a long time?",
+                        "What's the best book you've ever read?",
+                        "Have you ever volunteered for a cause? What was it?",
+                        "What's the most challenging thing you've ever done?",
+                        "Have you ever lived in another country? Where?",
+                        "What's the funniest thing that's ever happened to you?",
+                        "Have you ever been to a live sports event? Which one?",
+                        "What's the most beautiful place you've ever seen?",
+                        "Have you ever tried something new and loved it? What was it?"
+                    ],
+                    image: 'Experience.jpg'
+                },
+                ifYouCould: {
+                    questions: [
+                        "If you could change one thing about yourself, what would it be?",
+                        "If you could travel back in time, what advice would you give your younger self?",
+                        "If you could have dinner with any fictional character, who would it be?",
+                        "If you could master one skill overnight, what would it be?",
+                        "If you could live in any historical era, which one would you choose?",
+                        "If you could solve one problem in the world, what would it be?",
+                        "If you could be famous for one thing, what would it be?",
+                        "If you could see any musician, dead or alive, in concert, who would it be?",
+                        "If you could instantly learn a new language, which one would you choose?",
+                        "If you could invent something, what would it be?",
+                        "If you could have a superpower, what would it be?",
+                        "If you could go anywhere in the universe, where would you go?",
+                        "If you could bring back any fashion trend, what would it be?",
+                        "If you could only listen to one song for the rest of your life, what would it be?",
+                        "If you could have dinner with anyone in the world, who would it be?",
+                        "If you could live without one of your senses, which one would you choose?",
+                        "If you could swap lives with someone for a week, who would it be?",
+                        "If you could be an expert in any field, what would it be?",
+                        "If you could eliminate one thing from your daily routine, what would it be?",
+                        "If you could live in any fictional world, which one would you choose?"
+                    ],
+                    image: 'IfYouCould.jpg'
+                }
+            };
 
-            let drawnCards = [];
-            let cardsDrawn = 0;
+            let currentCategory = null;
 
-            const cardsDrawnElement = document.getElementById('cards-drawn');
-            const cardsLeftElement = document.getElementById('cards-left');
             const questionElement = document.getElementById('question');
-            const drawCardButton = document.getElementById('draw-card');
+            const cardElement = document.getElementById('card');
             const endGameModal = document.getElementById('endGameModal');
             const playAgainButton = document.getElementById('play-again');
 
-            drawCardButton.addEventListener('click', function() {
-                drawCardButton.style.animation = 'button-click 0.3s ease';
-                setTimeout(() => drawCardButton.style.animation = '', 300);
-
-                if (drawnCards.length < questions.length) {
-                    let randomIndex;
-                    do {
-                        randomIndex = Math.floor(Math.random() * questions.length);
-                    } while (drawnCards.includes(randomIndex));
-
-                    drawnCards.push(randomIndex);
-                    cardsDrawn++;
-
-                    questionElement.textContent = questions[randomIndex];
-                    cardsDrawnElement.textContent = cardsDrawn;
-                    cardsLeftElement.textContent = questions.length - cardsDrawn;
+            function updateCard() {
+                if (currentCategory.questions.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * currentCategory.questions.length);
+                    const question = currentCategory.questions.splice(randomIndex, 1)[0];
+                    questionElement.textContent = question;
                 } else {
                     questionElement.textContent = "All questions have been drawn!";
                     endGameModal.style.display = 'block';
                 }
+            }
+
+            function selectCategory(category) {
+                currentCategory = { ...categories[category], questions: [...categories[category].questions] };
+                questionElement.textContent = 'Press "Draw Card" to start!';
+                cardElement.style.backgroundImage = `url(${currentCategory.image})`;
+                updateCard();
+            }
+
+            document.getElementById('life-button').addEventListener('click', function() {
+                selectCategory('life');
+            });
+
+            document.getElementById('random-button').addEventListener('click', function() {
+                selectCategory('random');
+            });
+
+            document.getElementById('deep-button').addEventListener('click', function() {
+                selectCategory('deep');
+            });
+
+            document.getElementById('experience-button').addEventListener('click', function() {
+                selectCategory('experience');
+            });
+
+            document.getElementById('if-you-could-button').addEventListener('click', function() {
+                selectCategory('ifYouCould');
             });
 
             playAgainButton.addEventListener('click', function() {
-                drawnCards = [];
-                cardsDrawn = 0;
-                cardsDrawnElement.textContent = cardsDrawn;
-                cardsLeftElement.textContent = questions.length;
                 questionElement.textContent = 'Press "Draw Card" to start!';
                 endGameModal.style.display = 'none';
             });
